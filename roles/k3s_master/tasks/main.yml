@@ -1,0 +1,29 @@
+---
+- name: install k3s master
+  debug:
+    msg: now installing k3s master
+- name: k3s pid
+  become: yes
+  shell:
+    cmd: "pidof k3s"
+  register: k3s_pid
+  ignore_errors: yes
+  changed_when: false
+- name: fetch get_k3s.sh
+  get_url:
+    url: "{{ k3s_install_url }}"
+    dest: ./get_k3s.sh
+    mode: '0744'
+- name: run get_k3s.sh
+  become: yes
+  shell:
+    cmd: ./get_k3s.sh
+  when: k3s_pid.stdout == ''
+#- name: role firewall
+#  vars:
+#    firewall_open_ports:
+#      - '6443/tcp'
+#      - '8472/udp'
+#      - '10250/tcp'
+#  include_role:
+#    name: firewall

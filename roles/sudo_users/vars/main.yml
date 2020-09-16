@@ -1,0 +1,4 @@
+---
+home: "{{ lookup('env','HOME') }}"
+salt: "salt_of_the_world"
+public_key_file: "{{ home }}/.ssh/id_rsa.pub"

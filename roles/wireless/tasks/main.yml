@@ -1,0 +1,10 @@
+---
+# tasks file for wireless
+
+- name: multiple roles
+  include_role:
+    name: "{{ item }}"
+  loop:
+    - wpa_supplicant_conf
+    - wlan_static_ip
+    - etc_hosts

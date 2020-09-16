@@ -1,0 +1,19 @@
+---
+- hosts: ca_host
+  gather_facts: False
+  tasks:
+    - name: ca role
+      include_role:
+        name: ca
+- hosts: raspberry_wifis
+  gather_facts: False
+  tasks:
+    - name: trust_ca role
+      include_role:
+        name: trust_ca
+- hosts: docker_registry_host
+  gather_facts: False
+  tasks:
+    - name: docker_registry role
+      include_role:
+        name: docker_registry

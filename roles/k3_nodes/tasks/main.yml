@@ -1,0 +1,46 @@
+---
+# tasks file for k3_nodes
+#- name: k3 nodes
+#  debug:
+#    msg: "k3s nodes install"
+- name: k3s pid
+  become: yes
+  shell:
+    cmd: "pidof k3s"
+  register: k3s_pid
+  ignore_errors: yes
+  changed_when: false
+#- name: debug k3s_pid
+#  debug:
+#    msg: "{{ k3s_pid }}"
+- name: get_url get_k3s.sh
+  get_url:
+    url: "{{ k3s_install_url }}"
+    dest: ./get_k3s.sh
+    mode: '0744'
+# Anomaly: even though we specify the wireless ip address, the k3s agent will seek
+# on the ethernet ip address, even though the ethernet ip address was never mentioned
+# to the k3s agent
+- name: set_fact k3_agent_command
+  set_fact:
+    k3_agent_command: |
+      K3S_URL=https://{{ k3s_master_ip }}:6443 \
+      K3S_TOKEN={{ k3s_token }} \
+      K3S_NODE_NAME={{ k3s_node_name }} \
+        ./get_k3s.sh
+- name: print k3_agent_command
+  debug:
+    msg: "{{ k3_agent_command }}"
+- name: run get_k3s.sh
+  become: yes
+  shell:
+    cmd: "{{ k3_agent_command }}"
+  when: k3s_pid.stdout == ''
+#    - name: role firewall
+#      vars:
+#        firewall_open_ports:
+#          - '6443/tcp'
+#          - '8472/udp'
+#          - '10250/tcp'
+#      include_role:
+#        name: firewall

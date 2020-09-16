@@ -1,0 +1,19 @@
+---
+# tasks file for trust_ca
+
+#sudo cp $root_ca/certs/ca.cert.pem \
+  #/usr/local/share/ca-certificates/root.crt
+#sudo cp $root_ca_intermediate/certs/intermediate.cert.pem \
+  #/usr/local/share/ca-certificates/intermediate.crt
+- name: copy ca cert
+  become: yes
+  copy:
+    src: ./fetch/certs/{{ item.src_name }}
+    dest: /usr/local/share/ca-certificates/{{ item.dest_name }}
+    mode: '0444'
+  loop:
+    - src_name: ca.cert.pem
+      dest_name: ca.crt
+    - src_name: intermediate.cert.pem
+      dest_name: intermediate.crt
+  notify: update-ca-certificates

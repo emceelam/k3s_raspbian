@@ -1,0 +1,93 @@
+---
+- hosts: raspberry_wifis
+  gather_facts: False
+  tasks:
+    - name: wpa_supplicant_conf changes
+      include_role:
+        name: wpa_supplicant_conf
+- hosts: bind_host
+  gather_facts: False
+  tasks:
+    - name: bind role
+      include_role:
+        name: "{{ role_name }}"
+      loop:
+        - bind
+      loop_control:
+        loop_var: role_name
+- hosts: raspberry_wifis
+  gather_facts: False
+  vars:
+    dns_resolv_servers:
+      - "{{ dns_ip_addr }}"
+  tasks:
+    - name: install pip
+      become: yes
+      apt:
+        name: "{{module_name}}"
+        state: present
+      loop:
+        - python-backports.ssl-match-hostname
+        - python-pip
+      loop_control:
+        loop_var: module_name
+    - name: install setuptools
+      become: yes
+      pip:
+        name: setuptools
+        state: latest
+    - name: pip install cryptography
+      become: yes
+      pip:
+        name: cryptography
+        state: present
+    - name: multiple roles
+      include_role:
+        name: "{{ role_name }}"
+      loop:
+        - etc_hosts
+        - wlan_static_ip
+        - docker_engine
+      loop_control:
+        loop_var: role_name
+
+- name: playbook docker_registry_main
+  include: docker_registry.yml
+
+- hosts: k3s_master
+  gather_facts: False
+  vars:
+  tasks:
+    - name: k3s_master role
+      include_role:
+        name: k3s_master
+    - name: get k3s.yaml
+      become: yes
+      fetch:
+        src: /etc/rancher/k3s/k3s.yaml
+        dest: /tmp/raspberry_ansible
+    - name: get token
+      become: yes
+      slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: result
+    - name: set token
+      set_fact:
+        k3s_token:  "{{ result['content'] | b64decode | trim }}"
+- hosts: k3s_nodes
+  gather_facts: False
+  vars:
+  tasks:
+    - name: k3_nodes role
+      include_role:
+        name: k3_nodes
+      vars:
+        k3s_token: "{{ hostvars['raspberry1-wifi']['k3s_token'] }}"
+- hosts: k3s_master
+  gather_facts: False
+  tasks:
+    - name: kubernetes
+      include_role:
+        name: kubernetes
+
+

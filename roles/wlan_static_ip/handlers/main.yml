@@ -1,0 +1,11 @@
+---
+# handlers file for wlan_static_ip
+- name: restart dhcpcd
+  become: yes
+  service:
+    name: dhcpcd
+    state: restarted
+- name: reboot system
+  become: yes
+  reboot:
+    msg: must reboot now

@@ -1,0 +1,58 @@
+---
+# tasks file for docker_registry
+
+- name: make cert_dir
+  file:
+    path: "{{ cert_dir }}"
+    state: directory
+    mode: '0700'
+
+
+- name: copy key and chain crt
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: '0400'
+  loop:
+    - src: "{{ playbook_dir }}/fetch/certs/{{ common_name }}.key.pem"
+      dest: "{{ cert_dir }}/{{ common_name }}.key"
+    - src: "{{ playbook_dir }}/fetch/certs/{{ common_name }}-chain.crt"
+      dest: "{{ cert_dir }}"
+  register: result
+
+- name: invalidate docker registry
+  docker_container:
+    name: docker_registry
+    state: absent
+  when: result is changed
+
+- name: pull the docker registry image
+  docker_image:
+    name: registry:2
+    source: pull
+
+#docker run -d \
+  #--name registry \
+  #-v $HOME/certs:/certs \
+  #-e REGISTRY_HTTP_ADDR=0.0.0.0:443 \
+  #-e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/raspberry3-wifi.example.com.crt \
+  #-e REGISTRY_HTTP_TLS_KEY=/certs/raspberry3-wifi.example.com.key \
+  #-p 443:443 \
+  #registry:2
+- name: run docker registry container
+  docker_container:
+    name: docker_registry
+    mounts:
+      - source: "{{ cert_dir }}"
+        target: /certs
+        type: bind
+    env:
+      REGISTRY_HTTP_ADDR: '0.0.0.0:443'
+      REGISTRY_HTTP_TLS_CERTIFICATE: /certs/{{ common_name }}-chain.crt
+      REGISTRY_HTTP_TLS_KEY: /certs/{{ common_name }}.key
+    image: registry:2
+    detach: yes
+    #restart_policy: always
+    published_ports: 443:443
+
+

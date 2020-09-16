@@ -1,0 +1,15 @@
+---
+- hosts: raspberry_wifis
+  gather_facts: False
+  vars:
+    ansible_user: "{{ deployment_user }}"
+    ansible_ssh_pass: "{{ deployment_password }}"
+    ansible_become_password: "{{ deployment_password }}"
+  tasks:
+    - name: Raspberry Pi CentOS shutdown
+      debug:
+        msg: "Raspberry Pi CentOS shutdown"
+    - name: shutting down
+      become: yes
+      shell:
+        cmd: shutdown now

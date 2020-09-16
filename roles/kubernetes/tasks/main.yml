@@ -1,0 +1,51 @@
+---
+# tasks file for kubernetes
+- name: install python kubernetes module
+  become: yes
+  pip:
+    name: "{{ module_name }}"
+    state: present
+  loop:
+    - kubernetes
+    - openshift
+  loop_control:
+    loop_var: module_name
+- name: testing directory
+  file:
+    path: ./testing
+    state: directory
+    mode: '0755'
+- name: testing directory
+  file:
+    path: ./dev
+    state: directory
+    mode: '0755'
+
+- name: docker pull kuard from my docker registry
+  docker_image:
+    name: "{{ docker_registry_name }}:5000/kuard-arm:1"
+    source: pull
+- name: upload kuard-pod.yaml
+  copy:
+    src: files/kuard-pod.yaml
+    dest: ./dev/kuard-pod.yaml
+    mode: 0644
+- name: Create dev namespace
+  become: yes
+  k8s:
+    name: dev
+    api_version: v1
+    kind: Namespace
+    state: present
+    kubeconfig: "{{ kubeconfig }}"
+- name: kuard-pod run
+  become: yes
+  k8s:
+    src: ./dev/kuard-pod.yaml
+    state: present
+    namespace: dev
+    kubeconfig: "{{ kubeconfig }}"
+#- name: Create a Service object by reading the definition from a file
+#  k8s:
+#    state: present
+#    src: /testing/service.yml

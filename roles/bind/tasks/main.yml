@@ -1,0 +1,46 @@
+---
+# tasks file for bind
+- name: install bind9
+  become: yes
+  apt:
+    name: bind9
+- name: "add bind group to {{ deployment_user }}"
+  become: yes
+  user:
+    name: "{{ deployment_user }}"
+    groups: bind
+    append: yes
+- name: "bind config, named.conf files"
+  become: yes
+  template:
+    src:  "templates/etc/bind/{{ file }}.j2"
+    dest: "/etc/bind/{{ file }}"
+    mode: '0664'
+  notify: restart bind9
+  loop:
+    - named.conf.options
+    - named.conf.local
+  loop_control:
+    loop_var: file
+- name: mkdir /etc/bind/zones
+  become: yes
+  file:
+    path: /etc/bind/zones
+    state: directory
+    owner: root
+    group: bind
+    recurse: yes
+- name: "zone files"
+  become: yes
+  template:
+    src:  "templates/etc/bind/zones/{{ file }}.j2"
+    dest: "/etc/bind/zones/{{ file }}"
+    mode: '0664'
+    owner: root
+    group: bind
+  notify: restart bind9
+  loop:
+    - raspberry-zone
+    - raspberry-rev
+  loop_control:
+    loop_var: file

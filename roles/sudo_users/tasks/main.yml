@@ -1,0 +1,53 @@
+---
+- name: "Add deployment user, {{ deployment_user }}"
+  become: yes
+  user:
+    name: "{{ deployment_user }}"
+    password: "{{ deployment_password | password_hash('sha512', salt) }}"
+      # salt parameter is optional
+    groups: sudo
+    append: yes
+- name: "Add my user, {{ local_user }}"
+  become: yes
+  user:
+    name: "{{ local_user }}"
+    password: "{{ local_password | default(local_user) | password_hash('sha512', salt) }}"
+    groups: sudo
+    append: yes
+- name: add public key to authorized_keys
+  become: yes
+  authorized_key:
+    user: "{{ local_user }}"
+    state: present
+    key: "{{ lookup ('file', '~/.ssh/id_rsa.pub') }}"
+- name: Disable pi account
+  become: yes
+  user:
+    name: pi
+    password: '!'
+- name: Disable root login
+  become: yes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^PermitRootLogin\s'
+    line: PermitRootLogin no
+  notify:
+    - restart sshd
+- name: Disable empty passwords
+  become: yes
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    state: present
+    regexp: '^#?PermitEmptyPasswords\s'
+    line: PermitEmptyPasswords no
+  notify:
+    - restart sshd
+
+# needs a reboot after the command
+- name: expand to the full size of the micro sd card.
+  become: yes
+  shell: |
+    raspi-config --expand-rootfs
+#      # not sure why rootfs-expand keeps returning 1
+#    exit 0

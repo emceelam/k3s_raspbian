@@ -1,0 +1,12 @@
+---
+# tasks file for wpa_supplicant_conf
+
+- name: wpa_supplicant.conf
+  become: yes
+  template:
+    src: templates/etc/wpa_supplicant/wpa_supplicant.conf
+    dest: /etc/wpa_supplicant/wpa_supplicant.conf
+    owner: root
+    group: root
+    mode: '0600'
+  notify: reboot system

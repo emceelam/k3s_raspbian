@@ -1,0 +1,12 @@
+---
+# tasks file for wlan_static_ip
+- name: static ip address for wlan0
+  become: yes
+  blockinfile:
+    block: |
+      interface wlan0
+      static ip_address={{ wifi_ip_address }}
+      static routers={{ wifi_gateway }}
+      static domain_name_servers={{ dns_resolv_servers | join (' ') }}
+    path: "/etc/dhcpcd.conf"
+  notify: reboot system

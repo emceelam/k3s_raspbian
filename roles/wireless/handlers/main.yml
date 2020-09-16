@@ -1,0 +1,7 @@
+---
+# handlers file for wireless
+- name: reboot system
+  become: yes
+  reboot:
+    msg: Must reboot now
+    reboot_timeout: 1200

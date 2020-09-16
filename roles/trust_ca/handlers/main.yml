@@ -1,0 +1,16 @@
+---
+# handlers file for trust_ca
+
+#sudo update-ca-certificates
+- name: update-ca-certificates
+  become: yes
+  shell:
+    cmd: |
+      tmp_dir=$(mktemp --directory --tmpdir=$HOME)
+      mv /usr/local/share/ca-certificates/ca.crt $tmp_dir
+      mv /usr/local/share/ca-certificates/intermediate.crt $tmp_dir
+      update-ca-certificates --fresh
+      mv $tmp_dir/* /usr/local/share/ca-certificates/
+      rmdir $tmp_dir
+      update-ca-certificates
+

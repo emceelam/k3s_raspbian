@@ -1,0 +1,17 @@
+$TTL 1D
+@   IN SOA  ns1.example.com   admin.example.com. (
+                                        2017031312      ; serial
+                                        1D              ; refresh
+                                        1H              ; retry
+                                        1W              ; expire
+                                        3H )            ; minimum
+
+$ORIGIN         example.com.
+
+example.com.      IN      NS      ns1.example.com.
+
+ns1.example.com.                  IN      A       {{ wifi_ip_address }}
+
+{% for raspberry in raspberries %}
+{{ raspberry.wifi_host }}.example.com.    IN      A     {{ raspberry.wifi_ip_address }}
+{% endfor %}

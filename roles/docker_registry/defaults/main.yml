@@ -1,0 +1,5 @@
+---
+# defaults file for docker_registry
+
+cert_dir: /home/{{ ansible_user }}/certs
+common_name: raspberry3-wifi.example.com

@@ -1,0 +1,61 @@
+---
+- hosts: raspberry_directs
+  gather_facts: False
+  tasks:
+    - name: Ansible Raspbian setup
+      debug:
+        msg: "Ansible Raspbian setup"
+    - name: noop as pi user
+      vars:
+        ansible_connection: local
+      shell: |
+        sshpass -p raspberry \
+          ssh \
+            -o User=pi \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=no \
+            {{ inventory_hostname }}
+      ignore_errors: yes
+      register: result
+      changed_when: false
+    - name: host reachability
+      fail:
+        msg: "Unable to connect to {{ inventory_hostname }}"
+      when: result.stderr is search("(?:Network is unreachable|Name or service not known)")
+    - name: is pi permitted
+      set_fact:
+        permit_pi_login: "{{ False if 'Permission denied, please try again.' in result.stderr_lines else True }}"
+    - name: sudo_users role
+      include_role:
+        name: sudo_users
+      vars:
+        ansible_user: pi
+        ansible_ssh_pass: raspberry
+      when: permit_pi_login == True
+    - name: Use the US keyboard.
+      become: yes
+      copy:
+        src: files/etc/default/keyboard
+        dest: /etc/default/keyboard
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: time zone setting
+      become: yes
+      shell: timedatectl set-timezone {{ time_zone }}
+
+    - name: set-hostname
+      become: yes
+      shell: hostnamectl set-hostname {{ inventory_hostname }}
+    - name: multiple roles
+      vars:
+        dns_resolv_servers:
+          - 8.8.8.8
+          - 8.8.4.4
+      include_role:
+        name: "{{ role_name }}"
+      loop:
+        - wireless
+      loop_control:
+        loop_var: role_name

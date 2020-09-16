@@ -1,0 +1,6 @@
+---
+# handlers file for wpa_supplicant_conf
+- name: reboot system
+  become: yes
+  reboot:
+    msg: must reboot now

@@ -1,0 +1,51 @@
+---
+# tasks file for docker_init
+- name: add docker group
+  become: yes
+  group:
+    name: docker
+    state: present
+- name: add user to group
+  become: yes
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+- name: fetch docker install script
+  get_url:
+    url: 'https://get.docker.com'
+    dest: './get_docker.sh'
+    mode: '0744'
+
+- name: dockerd pid
+  become: yes
+  shell:
+    cmd: "pidof dockerd"
+  register: dockerd_pid
+  ignore_errors: yes
+  changed_when: false
+- name: install docker
+  become: yes
+  shell:
+    cmd: "./get_docker.sh"
+  when: dockerd_pid.stdout == ''
+- name: install docker
+  become: yes
+  pip:
+    name: docker
+    state: present
+# https://github.com/docker/docker-py/issues/1502
+# the alternative to uninstall python-configparser is
+# Uninstall pip's backports.ssl-match-hostname, and install Debian's python-backports.ssl-match-hostname package (this is the approach I went with)
+#- name: uninstall python-configparser
+#  become: yes
+#  apt:
+#    name: python-configparser
+#    state: absent
+#- name: remove docker-py because we already use the python docker module
+#  become: yes
+#  pip:
+#    name: docker-py
+#    state: absent
+
+

@@ -1,0 +1,24 @@
+---
+# defaults file for ca
+ca_passphrase: "{{ deployment_user }}"
+ca_dir: /home/{{ ansible_user }}/ca
+ca_root_dir: "{{ ca_dir }}/root"
+ca_intermediate_dir: "{{ ca_dir }}/intermediate"
+ca_pass_file: "{{ ca_root_dir}}/private/ca_pass.txt"
+ca_password: "{{ deployment_password }}"
+ca_common_name: ns1.example.com
+ca_organization: Acme, LLC
+ca_organizational_unit: Acme Dept.
+ca_locality: Hill Valley
+ca_state_or_province: California
+ca_country: US
+
+common_name: raspberry3-wifi.example.com
+organization: Local Org
+organizational_unit: Local Dept.
+locality: Sunnydale
+state_or_province: California
+country: US
+
+
+
