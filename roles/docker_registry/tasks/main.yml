@@ -52,7 +52,7 @@
       REGISTRY_HTTP_TLS_KEY: /certs/{{ common_name }}.key
     image: registry:2
     detach: yes
-    #restart_policy: always
+    restart_policy: always
     published_ports: 443:443
 
 
