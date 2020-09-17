@@ -1,3 +1,6 @@
+# https://jamielinux.com/docs/openssl-certificate-authority/introduction.html
+# Creates a root CA, an intermediate CA, and a server certificate
+
 all: {{ ca_intermediate_dir }}/certs/{{ common_name }}-chain.crt
 
 
