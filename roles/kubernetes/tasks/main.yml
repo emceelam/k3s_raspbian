@@ -23,11 +23,11 @@
 
 - name: docker pull kuard from my docker registry
   docker_image:
-    name: "{{ docker_registry_name }}:5000/kuard-arm:1"
+    name: "{{ docker_registry_fqdn }}/kuard-arm:1"
     source: pull
 - name: upload kuard-pod.yaml
-  copy:
-    src: files/kuard-pod.yaml
+  template:
+    src: templates/kuard-pod.yaml
     dest: ./dev/kuard-pod.yaml
     mode: 0644
 - name: Create dev namespace
