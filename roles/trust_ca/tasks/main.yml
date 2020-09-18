@@ -16,4 +16,6 @@
       dest_name: ca.crt
     - src_name: intermediate.cert.pem
       dest_name: intermediate.crt
-  notify: update-ca-certificates
+  notify:
+    - update-ca-certificates
+    - restart docker

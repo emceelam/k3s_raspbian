@@ -14,3 +14,8 @@
       rmdir $tmp_dir
       update-ca-certificates
 
+- name: restart docker
+  become: yes
+  service:
+    name: docker
+    state: restarted
