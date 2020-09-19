@@ -21,9 +21,9 @@
     state: directory
     mode: '0755'
 
-- name: docker pull kuard from my docker registry
+- name: docker pull kuard
   docker_image:
-    name: "{{ docker_registry_fqdn }}/kuard-arm:1"
+    name: "{{ kuard_image }}"
     source: pull
 - name: upload kuard-pod.yaml
   template:

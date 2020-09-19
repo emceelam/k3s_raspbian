@@ -85,6 +85,8 @@
         k3s_token: "{{ hostvars['raspberry1-wifi']['k3s_token'] }}"
 - hosts: k3s_master
   gather_facts: False
+  vars:
+    kuard_image: gcr.io/kuar-demo/kuard-arm:1
   tasks:
     - name: kubernetes
       include_role:
