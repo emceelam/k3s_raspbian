@@ -1,0 +1,13 @@
+---
+# kuard-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kuard
+spec:
+  type: LoadBalancer
+  selector:
+    app: kuard
+  ports:
+    - protocol: TCP
+      port: 8080
