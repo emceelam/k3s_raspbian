@@ -42,14 +42,6 @@
     kind: Namespace
     state: present
     kubeconfig: "{{ kubeconfig }}"
-- name: kubectl delete pods/kuard
-  become: yes
-  k8s:
-    namespace: dev
-    kind: Pod
-    name: kuard
-    state: absent
-    kubeconfig: "{{ kubeconfig }}"
 - name: kubectl apply --filename={{ item.file }}
   become: yes
   k8s:
@@ -60,13 +52,7 @@
     state: present
     kubeconfig: "{{ kubeconfig }}"
   loop:
-    - kind: Pod
-      file: "{{ kuard_pod_file }}"
     - kind: ReplicaSet
       file: "{{ kuard_rs_file }}"
     - kind: Service
       file: kuard-service.yaml
-#- name: Create a Service object by reading the definition from a file
-#  k8s:
-#    state: present
-#    src: /testing/service.yml
