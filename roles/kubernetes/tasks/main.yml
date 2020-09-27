@@ -34,6 +34,8 @@
     - "{{ kuard_pod_file }}"
     - "{{ kuard_rs_file }}"
     - kuard-service.yaml
+    - nginx-deployment.yaml
+    - nginx-service.yaml
 - name: Create dev namespace
   become: yes
   k8s:
@@ -47,12 +49,20 @@
   k8s:
     namespace: dev
     kind: "{{ item.kind }}"
-    name: kuard
+    name: "{{ item.name }}"
     src: ./dev/{{ item.file }}
     state: present
     kubeconfig: "{{ kubeconfig }}"
   loop:
     - kind: ReplicaSet
+      name: kuard
       file: "{{ kuard_rs_file }}"
     - kind: Service
+      name: kuard
       file: kuard-service.yaml
+    - kind: Deployment
+      name: nginx
+      file: nginx-deployment.yaml
+    - kind: Service
+      name: nginx
+      file: nginx-service.yaml
