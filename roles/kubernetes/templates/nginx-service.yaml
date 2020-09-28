@@ -1,0 +1,14 @@
+---
+# nginx-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: LoadBalancer
+  selector:
+    run: nginx
+  ports:
+    - protocol: TCP
+      port: 81
+      targetPort: 80

@@ -1,0 +1,22 @@
+---
+# kuard-rs.yaml
+apiVersion: v1
+kind: ReplicaSet
+metadata:
+  name: kuard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kuard
+  template:
+    metadata:
+      labels:
+        app: kuard
+        version: "2"
+    spec:
+      containers:
+        - name: kuard
+          image: {{ kuard_image }}
+          ports:
+            - containerPort: 8080

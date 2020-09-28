@@ -1,2 +1,2 @@
 # k3s_raspbian
-k3s raspbian of 3 nodes, includes certificate authority, bind, docker registry
+Ansible playbook that sets up a k3s raspbian of 3 nodes, certificate authority, bind,  and docker registry

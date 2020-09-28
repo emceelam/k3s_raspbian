@@ -24,9 +24,9 @@
 - name: set_fact k3_agent_command
   set_fact:
     k3_agent_command: |
-      K3S_URL=https://{{ k3s_master_ip }}:6443 \
+      K3S_URL=https://{{ k3s_master_fqdn }}:6443 \
       K3S_TOKEN={{ k3s_token }} \
-      K3S_NODE_NAME={{ k3s_node_name }} \
+      K3S_NODE_NAME={{ fqdn }} \
         ./get_k3s.sh
 - name: print k3_agent_command
   debug:

@@ -37,7 +37,7 @@
       dest: "{{ ca_root_dir }}"
     - src: templates/ca/intermediate/openssl.cnf
       dest: "{{ ca_intermediate_dir }}"
-    - src: templates/Makefile
+    - src: templates/ca/Makefile
       dest: "{{ ca_dir }}"
 
 - name: ca_pass.txt

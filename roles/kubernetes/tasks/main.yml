@@ -21,15 +21,21 @@
     state: directory
     mode: '0755'
 
-- name: docker pull kuard from my docker registry
+- name: docker pull kuard
   docker_image:
-    name: "{{ docker_registry_name }}:5000/kuard-arm:1"
+    name: "{{ kuard_image }}"
     source: pull
-- name: upload kuard-pod.yaml
-  copy:
-    src: files/kuard-pod.yaml
-    dest: ./dev/kuard-pod.yaml
+- name: kuard templates
+  template:
+    src: templates/{{ item }}
+    dest: ./dev/{{ item }}
     mode: 0644
+  loop:
+    - "{{ kuard_pod_file }}"
+    - "{{ kuard_rs_file }}"
+    - kuard-service.yaml
+    - nginx-deployment.yaml
+    - nginx-service.yaml
 - name: Create dev namespace
   become: yes
   k8s:
@@ -38,14 +44,25 @@
     kind: Namespace
     state: present
     kubeconfig: "{{ kubeconfig }}"
-- name: kuard-pod run
+- name: kubectl apply --filename={{ item.file }}
   become: yes
   k8s:
-    src: ./dev/kuard-pod.yaml
-    state: present
     namespace: dev
+    kind: "{{ item.kind }}"
+    name: "{{ item.name }}"
+    src: ./dev/{{ item.file }}
+    state: present
     kubeconfig: "{{ kubeconfig }}"
-#- name: Create a Service object by reading the definition from a file
-#  k8s:
-#    state: present
-#    src: /testing/service.yml
+  loop:
+    - kind: ReplicaSet
+      name: kuard
+      file: "{{ kuard_rs_file }}"
+    - kind: Service
+      name: kuard
+      file: kuard-service.yaml
+    - kind: Deployment
+      name: nginx
+      file: nginx-deployment.yaml
+    - kind: Service
+      name: nginx
+      file: nginx-service.yaml

@@ -18,13 +18,13 @@
       dest: "{{ cert_dir }}/{{ common_name }}.key"
     - src: "{{ playbook_dir }}/fetch/certs/{{ common_name }}-chain.crt"
       dest: "{{ cert_dir }}"
-  register: result
+  register: docker_registry_cert_status
 
 - name: invalidate docker registry
   docker_container:
     name: docker_registry
     state: absent
-  when: result is changed
+  when: docker_registry_cert_status is changed
 
 - name: pull the docker registry image
   docker_image:
@@ -47,12 +47,12 @@
         target: /certs
         type: bind
     env:
-      REGISTRY_HTTP_ADDR: '0.0.0.0:443'
+      #REGISTRY_HTTP_ADDR: '0.0.0.0:443'
       REGISTRY_HTTP_TLS_CERTIFICATE: /certs/{{ common_name }}-chain.crt
       REGISTRY_HTTP_TLS_KEY: /certs/{{ common_name }}.key
     image: registry:2
     detach: yes
-    #restart_policy: always
-    published_ports: 443:443
+    restart_policy: always
+    published_ports: 5000:5000
 
 
